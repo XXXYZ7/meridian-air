@@ -1,0 +1,190 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Meridian Air</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: dark hero band (route map + departure board), then light sections: charter estimator, school programs, safety, contact */
+:root{
+  --bg:#f5f7fa; --panel:#ffffff; --panel2:#e9eef5; --line:#d6dde8; --fg:#121c28; --muted:#566478;
+  --accent:#0b6bcb; --accent-fg:#ffffff; --accent-soft:#dcebfb;
+  --hero:#0a1522; --hero-fg:#eaf1f9; --hero-muted:#93a5ba; --hero-line:#223349; --hero-accent:#5aaeff; --signal:#f2b84b; --ok:#47d28a;
+  --f-display:'Barlow Condensed','Arial Narrow',sans-serif; --f-body:'IBM Plex Sans',system-ui,sans-serif; --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c131c;--panel:#131d29;--panel2:#1a2636;--line:#26364a;--fg:#e6edf5;--muted:#8d9db1;--accent:#4da3ff;--accent-fg:#06121f;--accent-soft:#16304d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c131c;--panel:#131d29;--panel2:#1a2636;--line:#26364a;--fg:#e6edf5;--muted:#8d9db1;--accent:#4da3ff;--accent-fg:#06121f;--accent-soft:#16304d;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--f-body);margin:0}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;line-height:1.02}
+h2{font-size:clamp(34px,5vw,52px);font-weight:600;text-transform:uppercase;letter-spacing:.01em}
+h3{font-size:24px;font-weight:600}
+p{margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+.hd{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--hero);color:var(--hero-fg);border-bottom:1px solid var(--hero-line)}
+.hd .wrap{display:flex;align-items:center;gap:20px;height:60px}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;font:600 22px var(--f-display);letter-spacing:.08em;text-transform:uppercase}
+.logo svg{width:28px;height:28px;color:var(--hero-accent)}
+.hd nav{display:flex;gap:22px;margin-left:auto;font-size:14px;color:var(--hero-muted)}
+.hd nav a{text-decoration:none} .hd nav a:hover{color:var(--hero-fg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:4px;font-weight:600;text-decoration:none;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);cursor:pointer;font-size:15px}
+.btn.ghost{background:transparent;color:inherit;border-color:currentColor;opacity:.9}
+.hd .btn{padding:7px 14px;font-size:13px;background:var(--hero-accent);border-color:var(--hero-accent);color:var(--hero)}
+:focus-visible{outline:2px solid var(--hero-accent);outline-offset:3px}
+.hero{background:var(--hero);color:var(--hero-fg);padding-block:56px 64px;position:relative;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:44px;align-items:center}
+.eyebrow{font:500 12px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--hero-accent)}
+.hero h1{font-size:clamp(46px,7vw,84px);font-weight:700;text-transform:uppercase;margin:14px 0 18px;letter-spacing:.005em}
+.hero p.lead{color:var(--hero-muted);font-size:18px;max-width:46ch}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.hero .btn{background:var(--hero-accent);border-color:var(--hero-accent);color:var(--hero)}
+.hero .btn.ghost{background:transparent;color:var(--hero-fg);border-color:var(--hero-line)}
+.facts{display:flex;gap:26px;flex-wrap:wrap;margin-top:34px;font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--hero-muted)}
+.facts b{display:block;font:600 26px var(--f-display);color:var(--hero-fg);letter-spacing:.02em}
+.deck{border:1px solid var(--hero-line);border-radius:6px;background:rgba(255,255,255,.025);min-width:0}
+.deck svg{display:block;width:100%;height:auto}
+.board{border-top:1px solid var(--hero-line);font:13px var(--f-mono);padding:6px 14px 10px}
+.board .r{display:grid;grid-template-columns:62px 1fr 74px 86px;gap:8px;padding:6px 0;border-bottom:1px solid var(--hero-line);align-items:center}
+.board .r:last-child{border:0}
+.board .h{color:var(--hero-muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.st{color:var(--ok)} .st.d{color:var(--signal)}
+section{padding-block:76px;scroll-margin-top:60px}
+.sec-h{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:34px}
+.sec-h p{max-width:52ch;color:var(--muted)}
+.tag{font:500 12px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card .spec{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:13px;color:var(--muted);margin-top:auto}
+.card .spec b{display:block;color:var(--fg);font:500 15px var(--f-mono)}
+.price{font:500 14px var(--f-mono);color:var(--accent)}
+.est{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel)}
+.est>div{padding:26px;min-width:0}
+.est .out{background:var(--hero);color:var(--hero-fg);display:flex;flex-direction:column;gap:12px}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0} .field.w{grid-column:1/-1}
+.field label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.field input,.field select,.field textarea{background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:10px;font:inherit;width:100%;min-width:0}
+.big{font:600 56px/1 var(--f-display);color:var(--hero-fg)}
+.out dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px;color:var(--hero-muted)} .out dd{margin:0;font-family:var(--f-mono);color:var(--hero-fg)}
+.out .note{font-size:12px;color:var(--hero-muted)}
+.alt{background:var(--panel2)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:16px;margin-top:8px}
+.steps div{padding-top:14px;border-top:2px solid var(--accent)} .steps b{display:block;font:600 20px var(--f-display);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.steps p{color:var(--muted);font-size:14px}
+.band{background:var(--hero);color:var(--hero-fg)}
+.band .tag{color:var(--hero-accent)} .band p{color:var(--hero-muted)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:44px;align-items:start}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.list li{padding-left:18px;position:relative;color:var(--hero-muted)} .list li::before{content:"";position:absolute;left:0;top:.6em;width:8px;height:2px;background:var(--hero-accent)}
+.list b{color:var(--hero-fg)}
+footer{background:var(--hero);color:var(--hero-muted);padding-block:34px;font-size:13px;border-top:1px solid var(--hero-line)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.toast{margin-top:12px;padding:10px 12px;border-radius:4px;background:var(--accent-soft);color:var(--accent);font-size:14px}
+@media (max-width:860px){.hero .wrap,.two,.est{grid-template-columns:1fr}.hd nav{display:none}.hd .btn{margin-left:auto}.form{grid-template-columns:1fr}section{padding-block:52px}.board .r{grid-template-columns:54px 1fr 60px 72px;font-size:12px}}
+@media (prefers-reduced-motion:no-preference){.route{stroke-dasharray:600;stroke-dashoffset:600;animation:dr 1.6s .2s ease-out forwards}@keyframes dr{to{stroke-dashoffset:0}}.pulse{animation:pl 2.4s ease-in-out infinite}@keyframes pl{50%{opacity:.35}}}
+</style>
+<header class="hd"><div class="wrap">
+  <a class="logo" href="#top"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="M16 3v6M16 23v6M3 16h6M23 16h6M10 22l12-12"/></svg>Meridian Air</a>
+  <nav aria-label="Main"><a href="#charter">Charter</a><a href="#school">Flight school</a><a href="#safety">Safety</a><a href="#contact">Contact</a></nav>
+  <a class="btn" href="dashboard.html">Crew login</a>
+</div></header>
+
+<main id="top">
+<div class="hero"><div class="wrap">
+  <div>
+    <div class="eyebrow">Part 135 charter · Part 141 flight school</div>
+    <h1>Texas charter. Real flight training.</h1>
+    <p class="lead">Turboprops and light jets out of Dallas Love Field, with a flight school on the same ramp. Request a quote in a minute or book a discovery flight this week.</p>
+    <div class="cta"><a class="btn" href="#charter">Get a charter quote</a><a class="btn ghost" href="#school">Book a discovery flight</a></div>
+    <div class="facts"><div><b>4</b>charter aircraft</div><div><b>2</b>trainers</div><div><b>24/7</b>ops desk</div></div>
+  </div>
+  <div class="deck" aria-label="Route map and departures">
+    <svg id="map" viewBox="0 0 640 290" role="img" aria-label="Route map from Dallas Love Field"></svg>
+    <div class="board" id="board"></div>
+  </div>
+</div></div>
+
+<section id="charter"><div class="wrap">
+  <div class="sec-h"><div><div class="tag">Charter</div><h2>Pick the aircraft,<br>see the price</h2></div><p>Hourly rates include crew and fuel. Taxes and airport fees are itemized, so the estimate matches the invoice.</p></div>
+  <div class="cards" id="fleet" style="margin-bottom:34px"></div>
+  <div class="est">
+    <div><h3 style="margin-bottom:16px">Trip estimate</h3>
+      <div class="form">
+        <div class="field"><label for="from">From</label><select id="from"></select></div>
+        <div class="field"><label for="to">To</label><select id="to"></select></div>
+        <div class="field w"><label for="ac">Aircraft</label><select id="ac"></select></div>
+      </div></div>
+    <div class="out" id="out"></div>
+  </div>
+</div></section>
+
+<section id="school" class="alt"><div class="wrap">
+  <div class="sec-h"><div><div class="tag">Flight school</div><h2>From first lesson<br>to the right seat</h2></div><p>FAA Part 141 programs with a fixed syllabus, a dedicated instructor and scheduling you can see in your student portal.</p></div>
+  <div class="cards" id="programs"></div>
+  <div class="steps" style="margin-top:34px">
+    <div><b>Discovery flight</b><p>Thirty minutes at the controls with an instructor. No experience needed.</p></div>
+    <div><b>Plan your path</b><p>We map your goal to a syllabus and a realistic monthly schedule.</p></div>
+    <div><b>Train and track</b><p>Book aircraft, log hours and see progress in one portal.</p></div>
+    <div><b>Checkride ready</b><p>Stage checks and a mock oral before you meet the examiner.</p></div>
+  </div>
+</div></section>
+
+<section id="safety" class="band"><div class="wrap two">
+  <div><div class="tag">Safety</div><h2>Safety is a system,<br>not a slogan</h2><p style="margin-top:16px;max-width:46ch">Every flight is released against the same checks: crew currency, aircraft status, weather and weight and balance. Nothing departs on a red.</p></div>
+  <ul class="list">
+    <li><b>Safety management system.</b> Anyone can file a hazard or incident report, and every report has an audit trail.</li>
+    <li><b>Crew currency tracked daily.</b> Medicals, competency checks and recurrent training are monitored with alerts at 90, 60, 30 and 7 days.</li>
+    <li><b>Maintenance you can verify.</b> Inspections, defects and airworthiness directives are tracked per aircraft and block dispatch when overdue.</li>
+  </ul>
+</div></section>
+
+<section id="contact"><div class="wrap two" style="gap:56px">
+  <div><div class="tag">Contact</div><h2>Talk to the<br>ops desk</h2><p style="margin-top:16px;color:var(--muted);max-width:42ch">Tell us where and when. A dispatcher replies within one business day, and the ops desk is staffed around the clock for urgent trips.</p>
+    <dl style="margin:24px 0 0;display:grid;grid-template-columns:90px 1fr;gap:8px;font-size:14px"><dt class="muted" style="color:var(--muted)">Base</dt><dd style="margin:0">Dallas Love Field (KDAL)</dd><dt style="color:var(--muted)">Ops desk</dt><dd style="margin:0" class="mono">(214) 555-0142</dd><dt style="color:var(--muted)">Email</dt><dd style="margin:0" class="mono">ops@meridianair.example</dd></dl></div>
+  <form id="cf" class="form" novalidate>
+    <div class="field"><label for="n">Name</label><input id="n" required></div>
+    <div class="field"><label for="e">Email</label><input id="e" type="email" required></div>
+    <div class="field w"><label for="i">I'm interested in</label><select id="i"><option>Charter</option><option>Discovery flight</option><option>Flight training program</option><option>Pilot careers</option></select></div>
+    <div class="field w"><label for="m">Message</label><textarea id="m" rows="4"></textarea></div>
+    <div class="field w"><button class="btn" type="submit">Send message</button><div id="cr"></div></div>
+  </form>
+</div></section>
+</main>
+<footer><div class="wrap"><span>© 2026 Meridian Air. Sample brand for design preview, not a real operator.</span><span>Dallas Love Field · Part 135 · Part 141</span></div></footer>
+
+<script>
+const $=s=>document.querySelector(s);
+const AP={KDAL:['Dallas Love Field',32.847,-96.852],KAUS:['Austin',30.194,-97.670],KHOU:['Houston Hobby',29.645,-95.279],KSAT:['San Antonio',29.534,-98.470],KOKC:['Oklahoma City',35.393,-97.601],KAPA:['Denver Centennial',39.570,-104.849],KVNY:['Van Nuys',34.210,-118.489],KTEB:['Teterboro',40.850,-74.061],KPBI:['Palm Beach',26.683,-80.096]};
+const AC={B350:{n:'King Air 350',seats:9,kt:312,rng:1700,rate:3200,d:'Roomy cabin, short-field capable. The workhorse for regional trips.'},C25B:{n:'Citation CJ3',seats:6,kt:416,rng:1900,rate:3800,d:'Light jet speed for longer legs and tight schedules.'},PC12:{n:'Pilatus PC-12',seats:8,kt:270,rng:1700,rate:2400,d:'One engine, big cabin, and access to small airports.'},C208:{n:'Cessna Caravan',seats:9,kt:186,rng:900,rate:2000,d:'Low cost per seat for short hops and group travel.'}};
+const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+/* map: equirectangular projection to the viewBox */
+const X=lo=>(lo+122)*12.6+14,Y=la=>(42-la)*13+16;
+const LB={KAUS:['end',-8,-5],KSAT:['end',-8,12],KHOU:['start',8,12],KOKC:['start',8,0],KAPA:['end',-8,4],KVNY:['start',0,-10],KTEB:['end',-8,-8],KPBI:['end',-8,4]};
+(function(){
+ let g='';for(let lo=-120;lo<=-70;lo+=10)g+=`<line x1="${X(lo)}" y1="16" x2="${X(lo)}" y2="276" stroke="var(--hero-line)" stroke-width="1"/>`;
+ for(let la=30;la<=40;la+=10)g+=`<line x1="14" y1="${Y(la)}" x2="630" y2="${Y(la)}" stroke="var(--hero-line)" stroke-width="1"/>`;
+ const h=AP.KDAL,hx=X(h[2]),hy=Y(h[1]);let r='',p='';
+ Object.entries(AP).forEach(([k,a])=>{if(k==='KDAL')return;const x=X(a[2]),y=Y(a[1]),cx=(hx+x)/2,cy=Math.min(hy,y)-Math.hypot(x-hx,y-hy)*.22;
+  r+=`<path class="route" d="M${hx} ${hy} Q${cx} ${cy} ${x} ${y}" fill="none" stroke="var(--hero-accent)" stroke-width="1.4" opacity=".8"/>`;
+  const l=LB[k]||['start',8,4];p+=`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--hero)" stroke="var(--hero-accent)" stroke-width="1.5"/><text text-anchor="${l[0]}" x="${x+l[1]}" y="${y+l[2]}" fill="var(--hero-muted)" font-family="IBM Plex Mono,monospace" font-size="11">${k}</text>`});
+ $('#map').innerHTML=g+r+p+`<circle class="pulse" cx="${hx}" cy="${hy}" r="11" fill="var(--signal)" opacity=".25"/><circle cx="${hx}" cy="${hy}" r="5" fill="var(--signal)"/><text x="${hx+12}" y="${hy-2}" text-anchor="start" fill="var(--hero-fg)" font-family="IBM Plex Mono,monospace" font-size="12" font-weight="500">KDAL · HOME BASE</text>`;
+ const B=[['09:10','KDAL-KAUS','B350','Boarding'],['10:40','KDAL-KHOU','C25B','On time'],['12:15','KSAT-KDAL','PC12','On time'],['13:30','KDAL-KOKC','C208','Delayed 15m'],['15:05','KAPA-KDAL','C25B','On time']];
+ $('#board').innerHTML='<div class="r h"><span>Time</span><span>Route</span><span>Type</span><span>Status</span></div>'+B.map(b=>`<div class="r"><span>${b[0]}</span><span>${b[1]}</span><span>${b[2]}</span><span class="st ${b[3][0]==='D'?'d':''}">${b[3]}</span></div>`).join('');
+})();
+$('#fleet').innerHTML=Object.values(AC).map(a=>`<article class="card"><h3>${a.n}</h3><p style="color:var(--muted);font-size:14px">${a.d}</p><div class="price">${money(a.rate)} / flight hour</div><div class="spec"><div>Seats<b>${a.seats}</b></div><div>Cruise<b>${a.kt} kt</b></div><div>Range<b>${a.rng.toLocaleString()} nm</b></div><div>Crew<b>2 pilots</b></div></div></article>`).join('');
+const opts=Object.entries(AP).map(([k,a])=>`<option value="${k}">${k} · ${a[0]}</option>`).join('');
+$('#from').innerHTML=opts;$('#to').innerHTML=opts;$('#to').value='KAUS';
+$('#ac').innerHTML=Object.entries(AC).map(([k,a])=>`<option value="${k}">${a.n} · up to ${a.seats} seats</option>`).join('');
+function nm(a,b){const R=3440.07,r=x=>x*Math.PI/180,dl=r(b[1]-a[1]),dn=r(b[2]-a[2]),h=Math.sin(dl/2)**2+Math.cos(r(a[1]))*Math.cos(r(b[1]))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function est(){
+ const f=AP[$('#from').value],t=AP[$('#to').value],a=AC[$('#ac').value];
+ if($('#from').value===$('#to').value){$('#out').innerHTML='<h3>Choose two different airports</h3>';return}
+ const d=nm(f,t),h=Math.max(1,d/a.kt+.3),fl=h*a.rate,fee=450,seg=5.5,fet=fl*.075,tot=fl+fee+seg+fet;
+ $('#out').innerHTML=`<div class="eyebrow">Estimated total</div><div class="big">${money(tot)}</div><dl><dt>Distance</dt><dd>${Math.round(d)} nm</dd><dt>Flight time</dt><dd>${h.toFixed(1)} h</dd><dt>Flight charge</dt><dd>${money(fl)}</dd><dt>Airport and FBO fees</dt><dd>${money(fee)}</dd><dt>Segment fee</dt><dd>$5.50</dd><dt>Federal excise tax (7.5%)</dt><dd>${money(fet)}</dd></dl>${d>a.rng?'<p class="note">This leg is beyond the aircraft range. A fuel stop or the CJ3 is recommended.</p>':''}<p class="note">One-way estimate, 1-hour minimum. Sample rates for design preview.</p><div><a class="btn" href="#contact">Request this trip</a></div>`;
+}
+['from','to','ac'].forEach(i=>$('#'+i).onchange=est);est();
+const PR=[['Discovery flight','30 min with an instructor',null,199],['Private pilot','Typical 65 flight hours, 45 dual',[65,45],0],['Instrument rating','Typical 40 hours, 35 dual',[40,35],0],['Commercial pilot','Typical 120 hours, 60 dual',[120,60],0]];
+$('#programs').innerHTML=PR.map(p=>{const c=p[2]?p[2][0]*165+p[2][1]*62:p[3];return `<article class="card"><h3>${p[0]}</h3><p style="color:var(--muted);font-size:14px">${p[1]}</p><div class="price">${p[2]?'Est. '+money(c)+' total':money(c)}</div><div><a class="btn" style="padding:7px 14px;font-size:14px" href="#contact">${p[2]?'Ask about this program':'Book it'}</a></div></article>`}).join('');
+$('#cf').onsubmit=e=>{e.preventDefault();const ok=$('#n').value.trim()&&/\S+@\S+/.test($('#e').value);$('#cr').innerHTML=ok?'<div class="toast">Thanks. A dispatcher will reply within one business day. (Sample form, nothing was sent.)</div>':'<div class="toast">Enter your name and a valid email.</div>'};
+</script>
+</html>

@@ -1,0 +1,400 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Meridian Crewdeck</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: fixed left rail of 10 modules, one workspace on the right; summary strip first, detail tables below */
+:root{
+  --bg:#f3f5f8; --panel:#ffffff; --panel2:#eaeef4; --line:#d5dce6; --fg:#14202e; --muted:#5b6a7d;
+  --accent:#0b6bcb; --accent-fg:#ffffff; --accent-soft:#dcebfb;
+  --ok:#14804a; --ok-bg:#d9f1e3; --warn:#9a6200; --warn-bg:#fbebc4; --bad:#b4261f; --bad-bg:#f9dbd8;
+  --f-display:'Barlow Condensed','Arial Narrow',sans-serif; --f-body:'IBM Plex Sans',system-ui,sans-serif; --f-mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c131c; --panel:#131d29; --panel2:#1a2636; --line:#26364a; --fg:#e6edf5; --muted:#8d9db1;
+  --accent:#4da3ff; --accent-fg:#06121f; --accent-soft:#16304d;
+  --ok:#47d28a; --ok-bg:#12331f; --warn:#f2b84b; --warn-bg:#3a2d0d; --bad:#ff7b72; --bad-bg:#40181a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c131c; --panel:#131d29; --panel2:#1a2636; --line:#26364a; --fg:#e6edf5; --muted:#8d9db1;
+  --accent:#4da3ff; --accent-fg:#06121f; --accent-soft:#16304d;
+  --ok:#47d28a; --ok-bg:#12331f; --warn:#f2b84b; --warn-bg:#3a2d0d; --bad:#ff7b72; --bad-bg:#40181a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 var(--f-body);margin:0}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;margin:0;letter-spacing:.01em;text-wrap:balance}
+h1{font-size:30px} h2{font-size:21px} h3{font-size:16px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.mono,td.n,.kpi b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--panel);border-right:1px solid var(--line);padding:16px 10px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:2px;padding-left:max(10px,env(safe-area-inset-left,0px))}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px}
+.brand svg{width:30px;height:30px;color:var(--accent)}
+.brand b{font:600 20px var(--f-display);letter-spacing:.04em;text-transform:uppercase;line-height:1}
+.brand small{display:block;color:var(--muted);font:11px var(--f-mono);letter-spacing:.05em}
+.nav{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:5px;cursor:pointer;color:var(--muted);font-weight:500}
+.nav:hover{background:var(--panel2);color:var(--fg)}
+.nav[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.nav svg{width:17px;height:17px;flex:none}
+.nav .cnt{margin-left:auto;font:500 11px var(--f-mono);padding:1px 6px;border-radius:9px;background:var(--bad-bg);color:var(--bad)}
+.rail .sp{flex:1}
+.main{min-width:0;padding-block:20px 48px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.top{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.top p{margin:2px 0 0;color:var(--muted)}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);padding:6px 12px;border-radius:5px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.sm{padding:3px 8px;font-size:12px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;min-width:0}
+.card>h3{margin-bottom:10px}
+.kpi{display:flex;flex-direction:column;gap:2px}
+.kpi span{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.kpi b{font-size:28px;font-weight:500}
+.kpi small{color:var(--muted)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font:500 11px var(--f-body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tr.click{cursor:pointer} tr.click:hover td{background:var(--panel2)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:10px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)} .pill.neutral{background:var(--panel2);color:var(--muted)}
+.bar{height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;min-width:70px}
+.bar i{display:block;height:100%;background:var(--accent)} .bar.ok i{background:var(--ok)} .bar.warn i{background:var(--warn)} .bar.bad i{background:var(--bad)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tab{all:unset;cursor:pointer;padding:7px 12px;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--accent);border-color:var(--accent)}
+.muted{color:var(--muted)} .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:3px;min-width:0} .field label{font-size:12px;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:6px 8px;min-width:0;width:100%}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}
+.av{width:44px;height:44px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:600 16px var(--f-display);flex:none}
+.alert{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)} .alert:last-child{border-bottom:0}
+.alert .t{flex:1;min-width:0}
+.toast{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));right:16px;background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:6px;max-width:340px;z-index:9}
+.sched{display:grid;grid-template-columns:96px repeat(7,minmax(92px,1fr));min-width:820px;font-size:12px}
+.sched>div{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:5px;min-height:46px}
+.sched .hd{font-weight:600;color:var(--muted);background:var(--panel2);min-height:0}
+.shift{display:block;padding:3px 6px;border-radius:4px;background:var(--accent-soft);color:var(--accent);margin-bottom:3px;font:500 11px var(--f-mono);cursor:pointer;border:1px solid transparent}
+.shift.bad{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)} .shift.off{background:var(--panel2);color:var(--muted)}
+.modal{position:fixed;inset:0;background:rgba(5,10,16,.55);display:grid;place-items:center;padding:16px;z-index:8}
+.modal>div{background:var(--panel);border:1px solid var(--line);border-radius:8px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:18px}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:5px 12px} .kv dt{color:var(--muted)} .kv dd{margin:0}
+.tl{list-style:none;margin:0;padding:0} .tl li{padding:6px 0 6px 16px;border-left:2px solid var(--line);position:relative} .tl li::before{content:"";position:absolute;left:-5px;top:12px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.menu{display:none}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .rail{position:static;height:auto;flex-direction:row;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand{display:none} .nav span.l{display:none} .nav{padding:8px 10px} .rail .sp{display:none}
+  .kv{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:no-preference){.fade{animation:f .25s ease}@keyframes f{from{opacity:.4;transform:translateY(3px)}}}
+</style>
+<div class="app">
+  <nav class="rail" id="rail" aria-label="Modules"></nav>
+  <main class="main" id="main"></main>
+</div>
+<div id="layer"></div>
+<script>
+const TODAY=new Date('2026-10-14T12:00:00Z');
+const D=s=>new Date(s+'T12:00:00Z');
+const days=s=>Math.round((D(s)-TODAY)/864e5);
+const fmt=s=>D(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',timeZone:'UTC'});
+const money=n=>'$'+Math.round(n).toLocaleString('en-US');
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* status: red = expired, amber = due within 45 days, green otherwise */
+function st(date,warn=45){const d=days(date);return d<0?'bad':d<=warn?'warn':'ok'}
+function pill(date,warn){const d=days(date),s=st(date,warn);return `<span class="pill ${s}">${d<0?'Expired '+(-d)+'d ago':d+' days'}</span>`}
+
+const PILOTS=[
+ {id:'P01',n:'Michael Reeves',role:'Captain',base:'KDAL',lic:'ATP',lno:'ATP-3820418',types:['B350','C25B'],med:1,medExp:'2027-02-03',chk:'2027-01-18',rec:'2026-12-02',cur:6,h:[8420,5960,1980,2310],rate:105},
+ {id:'P02',n:'Jennifer Alvarez',role:'Captain',base:'KDAL',lic:'ATP',lno:'ATP-3817702',types:['B350','PC12'],med:1,medExp:'2026-11-02',chk:'2026-12-20',rec:'2026-10-29',cur:4,h:[11260,8100,2640,3480],rate:110},
+ {id:'P03',n:'Daniel Kowalski',role:'First Officer',base:'KAUS',lic:'COM',lno:'COM-4133981',types:['C25B'],med:1,medExp:'2027-05-14',chk:'2027-03-09',rec:'2027-01-25',cur:5,h:[2140,610,390,420],rate:58},
+ {id:'P04',n:'Priya Raman',role:'First Officer',base:'KDAL',lic:'COM',lno:'COM-4135120',types:['B350','PC12'],med:2,medExp:'2026-10-02',chk:'2027-02-11',rec:'2026-11-30',cur:2,h:[1860,420,250,300],rate:55},
+ {id:'P05',n:'Robert Tillman',role:'Captain',base:'KSAT',lic:'ATP',lno:'ATP-3821877',types:['PC12','C208'],med:1,medExp:'2027-01-12',chk:'2026-11-08',rec:'2027-04-01',cur:7,h:[6740,4890,1120,1610],rate:100},
+ {id:'P06',n:'Samantha Brooks',role:'Instructor',base:'KDAL',lic:'COM',lno:'COM-4128844',types:['PA28','DA42'],med:2,medExp:'2027-03-30',chk:'2027-02-02',rec:'2027-02-02',cur:3,h:[4390,3920,610,880],rate:62},
+ {id:'P07',n:'Marcus Johnson',role:'Captain',base:'KHOU',lic:'ATP',lno:'ATP-3819950',types:['C208','B350'],med:1,medExp:'2026-12-01',chk:'2026-09-25',rec:'2026-12-14',cur:0,h:[9810,7220,2210,2740],rate:108},
+ {id:'P08',n:'Emily Nguyen',role:'First Officer',base:'KAUS',lic:'COM',lno:'COM-4136402',types:['C25B','C208'],med:2,medExp:'2027-06-21',chk:'2027-04-14',rec:'2027-03-03',cur:5,h:[1320,260,140,170],rate:52}
+];
+const DOCS={P01:['ATP certificate','Class 1 medical','King Air 350 type rating','Flight review (§61.56)','Passport'],P02:['ATP certificate','Class 1 medical','PC-12 type rating','Hazmat training'],P04:['Commercial certificate','Class 2 medical','Instrument rating'],P07:['ATP certificate','Class 1 medical','Caravan type rating']};
+const TYPE={B350:'King Air 350',C25B:'Citation CJ3',PC12:'Pilatus PC-12',C208:'Cessna Caravan',PA28:'Piper PA-28',DA42:'Diamond DA42'};
+
+const FLEET=[
+ {reg:'N350MR',t:'B350',st:'Serviceable',hrs:6240.5,cyc:5110,nextIn:'2026-11-20',nextH:6290,desc:'A-check',ad:'2026-12-31',defects:[]},
+ {reg:'N525MR',t:'C25B',st:'Serviceable',hrs:3902.2,cyc:3340,nextIn:'2026-10-24',nextH:3950,desc:'200h inspection',ad:'2027-02-14',defects:[{d:'2026-10-09',t:'Left nav light intermittent',s:'Deferred (MEL cat C)'}]},
+ {reg:'N812PC',t:'PC12',st:'AOG',hrs:4411.8,cyc:2890,nextIn:'2026-10-18',nextH:4420,desc:'Engine borescope',ad:'2026-11-30',defects:[{d:'2026-10-12',t:'Oil pressure fluctuation, #1 engine',s:'Open: grounded'}]},
+ {reg:'N208MR',t:'C208',st:'Serviceable',hrs:8120.0,cyc:9460,nextIn:'2027-01-09',nextH:8200,desc:'100h inspection',ad:'2026-10-30',defects:[]},
+ {reg:'N7284K',t:'PA28',st:'In maintenance',hrs:5033.4,cyc:11820,nextIn:'2026-10-16',nextH:5040,desc:'Annual inspection',ad:'2026-10-16',defects:[{d:'2026-10-05',t:'Cracked cowl fastener',s:'Open: in work'}]}
+];
+const AIRPORTS={KDAL:'Dallas Love Field',KAUS:'Austin',KHOU:'Houston Hobby',KSAT:'San Antonio',KOKC:'Oklahoma City'};
+/* roster: pilot, aircraft, route, start/end in UTC+1 local ISO */
+let ROSTER=[
+ {id:1,p:'P01',ac:'N350MR',r:'KDAL-KAUS',s:'2026-10-12T07:00',e:'2026-10-12T12:30'},
+ {id:2,p:'P02',ac:'N350MR',r:'KDAL-KHOU',s:'2026-10-13T06:30',e:'2026-10-13T11:00'},
+ {id:3,p:'P02',ac:'N812PC',r:'KHOU-KDAL',s:'2026-10-13T17:00',e:'2026-10-13T22:30'},
+ {id:4,p:'P02',ac:'N812PC',r:'KDAL-KOKC',s:'2026-10-14T05:30',e:'2026-10-14T10:00'},
+ {id:5,p:'P03',ac:'N525MR',r:'KAUS-KDAL',s:'2026-10-14T08:00',e:'2026-10-14T11:30'},
+ {id:6,p:'P01',ac:'N350MR',r:'KDAL-KAUS',s:'2026-10-15T08:00',e:'2026-10-15T13:00'},
+ {id:7,p:'P05',ac:'N208MR',r:'KSAT-KAUS',s:'2026-10-15T09:00',e:'2026-10-15T14:30'},
+ {id:8,p:'P06',ac:'N7284K',r:'Local training',s:'2026-10-16T09:00',e:'2026-10-16T12:00'},
+ {id:9,p:'P03',ac:'N525MR',r:'KAUS-KHOU',s:'2026-10-16T07:00',e:'2026-10-16T12:00'},
+ {id:10,p:'P07',ac:'N208MR',r:'KHOU-KDAL',s:'2026-10-17T08:00',e:'2026-10-17T13:00'},
+ {id:11,p:'P01',ac:'N525MR',r:'KDAL-KAUS',s:'2026-10-17T07:00',e:'2026-10-17T11:00'}
+];
+const SWAPS=[{id:1,from:'P01',to:'P02',flight:6,note:'Family event',state:'Pending'}];
+const COURSES=[
+ {n:'King Air 350 recurrent',who:['P01','P02','P04'],done:[100,60,20],due:'2026-10-29'},
+ {n:'Hazmat training',who:['P03','P05','P08'],done:[100,100,45],due:'2026-12-15'},
+ {n:'CRM refresher',who:['P01','P03','P07','P08'],done:[100,80,10,0],due:'2026-11-20'}
+];
+const SIMS=[{d:'2026-10-20',t:'09:00-13:00',sim:'B350 FFS, Dallas',p:'P02',inst:'Samantha Brooks'},{d:'2026-10-22',t:'14:00-18:00',sim:'C25B FTD, Austin',p:'P03',inst:'Samantha Brooks'},{d:'2026-11-03',t:'09:00-13:00',sim:'PC12 FTD, Dallas',p:'P04',inst:'Samantha Brooks'}];
+const EXAMS=[{p:'P04',e:'Instrument proficiency check',sc:88,pass:75,d:'2026-09-30'},{p:'P08',e:'Citation type theory',sc:71,pass:75,d:'2026-10-05'},{p:'P03',e:'Hazmat training',sc:94,pass:80,d:'2026-10-08'},{p:'P01',e:'SMS awareness',sc:97,pass:80,d:'2026-10-10'}];
+const SIGNOFFS=[{p:'P04',item:'Night landings, PC-12',by:'Jennifer Alvarez',d:'2026-10-02'},{p:'P08',item:'Citation CJ3 line check',by:'Michael Reeves',d:'2026-09-28'},{p:'P03',item:'Crosswind ops, CJ3',by:'Michael Reeves',d:'2026-09-21'}];
+let REPORTS=[
+ {id:'SR-0147',type:'Incident',sev:'Medium',title:'Bird strike on climb-out, KDAL RWY 13L',by:'P02',d:'2026-10-11',state:'Under investigation',log:['11 Oct 14:02 Report filed by J. Alvarez','11 Oct 16:30 Aircraft inspected, no damage','12 Oct 09:10 Investigator assigned: Safety Manager']},
+ {id:'SR-0146',type:'Hazard',sev:'Low',title:'Wet ramp near Hangar 2 after rain',by:'P06',d:'2026-10-08',state:'Mitigated',log:['08 Oct 08:45 Hazard reported','09 Oct 10:00 Drainage cleared, signage added']},
+ {id:'SR-0145',type:'Incident',sev:'High',title:'Oil pressure fluctuation in cruise, N812PC',by:'P05',d:'2026-10-12',state:'Open',log:['12 Oct 13:15 Report filed by R. Tillman','12 Oct 13:40 Aircraft grounded (AOG)','12 Oct 15:00 Engine vendor notified']}
+];
+const MANUALS=[
+ {n:'General Operations Manual Rev 14',cat:'Manual',d:'2026-09-01',sign:{P01:1,P02:1,P03:1,P04:0,P05:1,P06:1,P07:0,P08:0}},
+ {n:'Bulletin 26-07: Winter ops',cat:'Bulletin',d:'2026-10-06',sign:{P01:1,P02:0,P03:1,P04:0,P05:0,P06:1,P07:1,P08:0}},
+ {n:'SMS Policy Rev 5',cat:'Policy',d:'2026-08-15',sign:{P01:1,P02:1,P03:1,P04:1,P05:1,P06:1,P07:1,P08:1}}
+];
+let BOOKINGS=[
+ {id:'Q-2031',c:'Lone Star Energy',kind:'Charter',route:'KDAL-KHOU',ac:'B350',hrs:1.6,s:'Confirmed'},
+ {id:'Q-2032',c:'Ms. Karen Whitfield',kind:'Charter',route:'KDAL-KAUS',ac:'C25B',hrs:1.4,s:'Quote sent'},
+ {id:'Q-2033',c:'Student pilot block (Part 141)',kind:'Training',route:'Local',ac:'PA28',hrs:10,s:'Confirmed'},
+ {id:'Q-2034',c:'Panhandle Agri Co.',kind:'Charter',route:'KSAT-KAUS',ac:'C208',hrs:1.8,s:'Draft'}
+];
+const RATES={B350:3200,C25B:3800,PC12:2400,C208:2000,PA28:165,DA42:245};
+</script>
+<script>
+const IC={
+ home:'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+ user:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0',
+ shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z M9 12l2 2 4-4',
+ cal:'M4 6h16v14H4z M4 10h16 M8 3v4 M16 3v4',
+ plane:'M10.5 21l1.5-7-8-3.5V8l8 1.5L13 3h2l.5 7L21 12v2l-6-.5-1 7.5z',
+ route:'M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM19 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM7 16c6 0 4-8 10-8',
+ cap:'M2 9l10-5 10 5-10 5z M6 11v5c3 2 9 2 12 0v-5',
+ alert:'M12 3l10 18H2z M12 10v5 M12 18v.5',
+ file:'M6 3h8l4 4v14H6z M14 3v4h4 M9 13h6 M9 17h6',
+ cash:'M3 6h18v12H3z M12 9v6 M9.5 10.5c0-1 5-1 5 0s-5 1-5 3 5 1 5 0'
+};
+const ico=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${IC[k]}"/></svg>`;
+const MODS=[['overview','Overview','home'],['pilots','Pilot profiles','user'],['compliance','Compliance','shield'],['roster','Rostering','cal'],['fleet','Fleet & maintenance','plane'],['ops','Flight ops','route'],['training','Training','cap'],['sms','Safety (SMS)','alert'],['docs','Documents','file'],['business','Business','cash']];
+
+/* compliance items per pilot */
+function items(p){
+ const cur=p.cur>=3?'ok':p.cur>0?'warn':'bad';
+ return [
+  {k:'Medical (Class '+p.med+')',date:p.medExp,s:st(p.medExp)},
+  {k:'Competency check (§135.293)',date:p.chk,s:st(p.chk)},
+  {k:'Recurrent training',date:p.rec,s:st(p.rec)},
+  {k:'90-day currency (§61.57)',txt:p.cur+' of 3 landings',s:cur}
+ ];
+}
+const rank={ok:0,warn:1,bad:2};
+const worst=p=>items(p).reduce((a,i)=>rank[i.s]>rank[a]?i.s:a,'ok');
+const byId=id=>PILOTS.find(p=>p.id===id);
+const init=n=>n.split(' ').map(x=>x[0]).join('');
+const label={ok:'Current',warn:'Due soon',bad:'Not legal'};
+const allAlerts=()=>PILOTS.flatMap(p=>items(p).filter(i=>i.s!=='ok').map(i=>({p,...i}))).sort((a,b)=>rank[b.s]-rank[a.s]||(a.date||'').localeCompare(b.date||''));
+
+let view='overview',tab={};
+function nav(){
+ const bad=allAlerts().filter(a=>a.s==='bad').length;
+ $('#rail').innerHTML=`<div class="brand"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="16" r="13"/><path d="M16 3v6M16 23v6M3 16h6M23 16h6M10 22l12-12"/></svg><div><b>Meridian</b><small>CREWDECK · SAMPLE</small></div></div>`+
+ MODS.map(([k,l,i])=>`<button class="nav" data-v="${k}" ${k===view?'aria-current="page"':''}>${ico(i)}<span class="l">${l}</span>${k==='compliance'&&bad?`<span class="cnt">${bad}</span>`:''}</button>`).join('')+
+ `<div class="sp"></div><button class="nav" id="theme">${ico('cal')}<span class="l">Toggle theme</span></button>`;
+ document.querySelectorAll('.nav[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
+ $('#theme').onclick=()=>{const r=document.documentElement,d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);r.dataset.theme=d?'light':'dark'};
+}
+function go(v){view=v;nav();render();scrollTo(0,0)}
+function head(t,sub,tools=''){return `<div class="top"><div><h1>${t}</h1><p>${sub}</p></div><div class="tools">${tools}</div></div>`}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2600)}
+function modal(html){const l=$('#layer');l.innerHTML=`<div class="modal"><div role="dialog" aria-modal="true">${html}<div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn" id="mx">Close</button></div></div></div>`;$('#mx').onclick=()=>l.innerHTML='';$('.modal',l).onclick=e=>{if(e.target.classList.contains('modal'))l.innerHTML=''}}
+function tabs(key,list,cur){return `<div class="tabs" role="tablist">${list.map(([k,l])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${k===cur}">${l}</button>`).join('')}</div>`}
+function bindTabs(key){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab[key]=b.dataset.tab;render()})}
+
+const V={};
+V.overview=()=>{
+ const al=allAlerts(),legal=PILOTS.filter(p=>worst(p)!=='bad').length;
+ const sv=FLEET.filter(a=>a.st==='Serviceable').length;
+ const today=ROSTER.filter(r=>r.s.startsWith('2026-10-14'));
+ return head('Operations overview','Wednesday, October 14, 2026 · Base: Dallas Love Field (KDAL)')+`
+ <div class="grid g4">
+  <div class="card kpi"><span>Pilots legal to fly</span><b>${legal}/${PILOTS.length}</b><small>${PILOTS.length-legal} grounded by compliance</small></div>
+  <div class="card kpi"><span>Items expired</span><b style="color:var(--bad)">${al.filter(a=>a.s==='bad').length}</b><small>${al.filter(a=>a.s==='warn').length} due within 45 days</small></div>
+  <div class="card kpi"><span>Aircraft serviceable</span><b>${sv}/${FLEET.length}</b><small>1 AOG · 1 in maintenance</small></div>
+  <div class="card kpi"><span>Open safety reports</span><b>${REPORTS.filter(r=>r.state!=='Mitigated').length}</b><small>1 high severity</small></div>
+ </div>
+ <div class="grid g2" style="margin-top:14px">
+  <div class="card"><h3>Needs attention</h3>${al.slice(0,7).map(a=>`<div class="alert"><span class="pill ${a.s}">${label[a.s]}</span><div class="t"><b>${esc(a.p.n)}</b><br><span class="muted">${a.k}${a.date?' · '+fmt(a.date):' · '+a.txt}</span></div><button class="btn sm" data-notify="${a.p.id}">Notify</button></div>`).join('')}</div>
+  <div class="card"><h3>Today's flights</h3><div class="tw"><table><tr><th>Time</th><th>Route</th><th>Crew</th><th>Aircraft</th></tr>${today.map(r=>`<tr><td class="n">${r.s.slice(11)}</td><td>${r.r}</td><td>${esc(byId(r.p).n)}</td><td class="mono">${r.ac}</td></tr>`).join('')}</table></div>
+  <p class="muted" style="margin:10px 0 0">Flight crews are checked against the roster rules every time a flight is added.</p></div>
+ </div>`;
+};
+V.pilots=()=>head('Pilot profiles','Licences, ratings, medicals, logged hours and documents',`<button class="btn pri" id="addp">Add pilot</button>`)+
+ `<div class="card tw"><table><tr><th>Pilot</th><th>Role</th><th>Certificate</th><th>Type ratings</th><th>Medical</th><th class="n">Total h</th><th>Status</th></tr>`+
+ PILOTS.map(p=>`<tr class="click" data-pilot="${p.id}"><td><b>${esc(p.n)}</b><br><span class="muted mono">${p.id} · ${p.base}</span></td><td>${p.role}</td><td>${p.lic}</td><td>${p.types.map(t=>`<span class="mono">${t}</span>`).join(', ')}</td><td>${pill(p.medExp)}</td><td class="n">${p.h[0].toLocaleString()}</td><td><span class="pill ${worst(p)}">${label[worst(p)]}</span></td></tr>`).join('')+`</table></div>`;
+function pilotModal(id){
+ const p=byId(id),docs=DOCS[id]||['Pilot certificate','FAA medical certificate','Passport'];
+ modal(`<div class="row" style="gap:14px"><div class="av">${init(p.n)}</div><div><h2>${esc(p.n)}</h2><span class="muted">${p.role} · base ${p.base} · ${p.lic} ${p.lno}</span></div></div>
+ <div class="grid g2" style="margin-top:14px">
+  <div><h3>Flight hours</h3><dl class="kv"><dt>Total</dt><dd class="mono">${p.h[0].toLocaleString()}</dd><dt>PIC</dt><dd class="mono">${p.h[1].toLocaleString()}</dd><dt>Night</dt><dd class="mono">${p.h[2].toLocaleString()}</dd><dt>IFR</dt><dd class="mono">${p.h[3].toLocaleString()}</dd></dl>
+  <h3 style="margin-top:14px">Type ratings</h3><p>${p.types.map(t=>TYPE[t]).join(', ')}</p></div>
+  <div><h3>Compliance</h3>${items(p).map(i=>`<div class="alert"><span class="pill ${i.s}">${label[i.s]}</span><div class="t">${i.k}<br><span class="muted">${i.date?fmt(i.date):i.txt}</span></div></div>`).join('')}</div>
+ </div><h3 style="margin-top:14px">Documents</h3><div class="row">${docs.map(d=>`<span class="pill neutral">${d}</span>`).join('')}</div>`);
+}
+V.compliance=()=>{
+ const t=tab.comp||'matrix';
+ return head('Compliance tracking','Tracked to 14 CFR Part 61 and Part 135. Green is current, amber is due within 45 days, red is expired',`<button class="btn" id="runalerts">Send all alerts</button>`)+
+ tabs('comp',[['matrix','Matrix'],['alerts','Alert queue']],t)+
+ (t==='matrix'?`<div class="card tw"><table><tr><th>Pilot</th><th>Medical</th><th>§135.293 check</th><th>Recurrent</th><th>Currency</th><th>Overall</th></tr>`+PILOTS.map(p=>{const it=items(p);return `<tr><td><b>${esc(p.n)}</b></td>${it.map(i=>`<td><span class="pill ${i.s}">${i.date?fmt(i.date):i.txt}</span></td>`).join('')}<td><span class="pill ${worst(p)}">${label[worst(p)]}</span></td></tr>`}).join('')+`</table></div>`:
+ `<div class="card">${allAlerts().map(a=>{const d=a.date?days(a.date):null;return `<div class="alert"><span class="pill ${a.s}">${label[a.s]}</span><div class="t"><b>${esc(a.p.n)}</b> · ${a.k}<br><span class="muted">${a.date?(d<0?'Expired '+fmt(a.date):'Expires '+fmt(a.date)+' ('+d+' days)'):a.txt} · reminders at 90, 60, 30 and 7 days</span></div><button class="btn sm" data-notify="${a.p.id}">Notify</button></div>`}).join('')}</div>`);
+};
+</script>
+<script>
+/* ---------- roster rules: max 12h flight duty period (incl. 1h pre, 30m post), max 8h flight time per day, min 10h rest ---------- */
+const T=s=>new Date(s+':00Z').getTime()/36e5;
+const acOf=r=>FLEET.find(a=>a.reg===r);
+function conflicts(pid,ac,s,e,ignore){
+ const out=[],p=byId(pid),a=acOf(ac),day=s.slice(0,10);
+ if(!p||!a)return out;
+ if(days(day)>=days(p.medExp)) out.push('Medical expires '+fmt(p.medExp)+', before this flight');
+ if(days(day)>=days(p.chk)) out.push('Competency check expired '+fmt(p.chk));
+ if(days(day)>=days(p.rec)) out.push('Recurrent training lapsed '+fmt(p.rec));
+ if(!p.types.includes(a.t)) out.push(p.n.split(' ')[0]+' has no '+TYPE[a.t]+' type rating');
+ if(a.st!=='Serviceable') out.push(ac+' is '+a.st+' ('+TYPE[a.t]+')');
+ const mine=ROSTER.filter(r=>r.p===pid&&r.id!==ignore);
+ const ns=T(s),ne=T(e);
+ if(ne<=ns) out.push('End time is before start time');
+ mine.forEach(r=>{const rs=T(r.s),re=T(r.e);
+  if(ns<re&&ne>rs) out.push('Overlaps flight '+r.r+' at '+r.s.slice(11));
+  else{const gap=ns>=re?ns-re:rs-ne; if(gap<10&&r.s.slice(0,10)!==day) out.push('Rest is '+gap.toFixed(1)+'h before/after '+r.r+' (minimum 10h)');}
+ });
+ const same=mine.filter(r=>r.s.slice(0,10)===day).concat([{s,e}]);
+ const first=Math.min(...same.map(r=>T(r.s))),last=Math.max(...same.map(r=>T(r.e)));
+ const ft=same.reduce((t,r)=>t+T(r.e)-T(r.s),0);
+ if(last-first+1.5>14) out.push('Duty period '+(last-first+1.5).toFixed(1)+'h exceeds 14h');
+ if(ft>8) out.push('Flight time '+ft.toFixed(1)+'h exceeds 8h per day');
+ ROSTER.filter(r=>r.ac===ac&&r.id!==ignore&&T(r.s)<ne&&T(r.e)>ns).forEach(r=>out.push(ac+' already booked '+r.s.slice(11)+'-'+r.e.slice(11)));
+ return out;
+}
+const rowConf=r=>conflicts(r.p,r.ac,r.s,r.e,r.id);
+const WEEK=['2026-10-12','2026-10-13','2026-10-14','2026-10-15','2026-10-16','2026-10-17','2026-10-18'];
+V.roster=()=>{
+ const t=tab.ro||'week',nc=ROSTER.filter(r=>rowConf(r).length).length;
+ return head('Scheduling & rostering','Week of Oct 12 · Part 135 style limits: 14h duty, 8h flight time, 10h rest (illustrative, confirm in your GOM)',`<span class="pill ${nc?'bad':'ok'}">${nc} flights with conflicts</span>`)+
+ tabs('ro',[['week','Week view'],['add','Add flight'],['swaps','Shift swaps'],['avail','Availability']],t)+
+ (t==='week'?`<div class="card tw"><div class="sched"><div class="hd">Pilot</div>${WEEK.map(d=>`<div class="hd">${new Date(d+'T12:00Z').toLocaleDateString('en-US',{weekday:'short',day:'numeric',timeZone:'UTC'})}</div>`).join('')}${PILOTS.map(p=>`<div class="hd" style="background:var(--panel)">${esc(p.n.split(' ')[0])}<br><span class="muted">${p.role==='Captain'?'CPT':p.role==='Instructor'?'CFI':'F/O'}</span></div>`+WEEK.map(d=>`<div>${ROSTER.filter(r=>r.p===p.id&&r.s.startsWith(d)).map(r=>`<button class="shift ${rowConf(r).length?'bad':''}" data-flight="${r.id}" style="all:unset"></button>`).join('')}</div>`).join('')).join('')}</div></div><p class="muted">Red blocks have at least one conflict. Select a block for details.</p>`:'')+
+ (t==='add'?`<div class="card"><div class="form"><div class="field"><label for="fp">Pilot</label><select id="fp">${PILOTS.map(p=>`<option value="${p.id}">${esc(p.n)}</option>`).join('')}</select></div><div class="field"><label for="fa">Aircraft</label><select id="fa">${FLEET.map(a=>`<option>${a.reg}</option>`).join('')}</select></div><div class="field"><label for="fd">Date</label><input id="fd" type="date" value="2026-10-18"></div><div class="field"><label for="fs">Start</label><input id="fs" type="time" value="08:00"></div><div class="field"><label for="fe">End</label><input id="fe" type="time" value="12:00"></div><div class="field"><label for="fr">Route</label><input id="fr" value="KDAL-KAUS"></div></div><div id="fres" style="margin-top:12px"></div><div class="row" style="margin-top:12px"><button class="btn pri" id="fadd">Add to roster</button></div></div>`:'')+
+ (t==='swaps'?`<div class="card tw"><table><tr><th>Request</th><th>Flight</th><th>Reason</th><th>Status</th><th></th></tr>${SWAPS.map(w=>{const f=ROSTER.find(r=>r.id===w.flight),c=conflicts(w.to,f.ac,f.s,f.e,f.id);return `<tr><td>${esc(byId(w.from).n)} to ${esc(byId(w.to).n)}</td><td>${f.r} · ${f.s.slice(5,10)} ${f.s.slice(11)}</td><td>${w.note}</td><td><span class="pill ${w.state==='Approved'?'ok':c.length?'bad':'warn'}">${w.state==='Pending'&&c.length?'Blocked':w.state}</span></td><td>${w.state==='Pending'?`<button class="btn sm" data-swap="${w.id}">${c.length?'See conflicts':'Approve'}</button>`:''}</td></tr>`}).join('')}</table></div>`:'')+
+ (t==='avail'?`<div class="card tw"><table><tr><th>Pilot</th>${WEEK.map(d=>`<th>${d.slice(8)} Oct</th>`).join('')}</tr>${PILOTS.map((p,i)=>`<tr><td>${esc(p.n)}</td>${WEEK.map((d,j)=>{const off=(i+j)%7===0;const rostered=ROSTER.some(r=>r.p===p.id&&r.s.startsWith(d));return `<td><span class="pill ${off?'neutral':rostered?'warn':'ok'}">${off?'Off':rostered?'Rostered':'Available'}</span></td>`}).join('')}</tr>`).join('')}</table></div>`:'');
+};
+function shiftHTML(){document.querySelectorAll('[data-flight]').forEach(b=>{const r=ROSTER.find(x=>x.id==b.dataset.flight);b.removeAttribute('style');b.className='shift '+(rowConf(r).length?'bad':'');b.textContent=r.s.slice(11)+' '+r.ac})}
+function flightModal(id){
+ const r=ROSTER.find(x=>x.id===id),c=rowConf(r),p=byId(r.p);
+ modal(`<h2>${r.r}</h2><dl class="kv" style="margin-top:10px"><dt>Pilot</dt><dd>${esc(p.n)} (${p.role})</dd><dt>Aircraft</dt><dd>${r.ac} · ${TYPE[acOf(r.ac).t]}</dd><dt>Block</dt><dd class="mono">${r.s.replace('T',' ')} to ${r.e.slice(11)}</dd></dl><h3 style="margin-top:14px">Rule check</h3>${c.length?c.map(x=>`<div class="alert"><span class="pill bad">Conflict</span><div class="t">${esc(x)}</div></div>`).join(''):'<div class="alert"><span class="pill ok">Clear</span><div class="t">Duty, rest, ratings and aircraft all pass.</div></div>'}`);
+}
+function liveCheck(){
+ const g=i=>$('#'+i).value,s=g('fd')+'T'+g('fs'),e=g('fd')+'T'+g('fe'),c=conflicts(g('fp'),g('fa'),s,e);
+ $('#fres').innerHTML=c.length?c.map(x=>`<div class="alert"><span class="pill bad">Conflict</span><div class="t">${esc(x)}</div></div>`).join(''):'<div class="alert"><span class="pill ok">Clear</span><div class="t">No conflicts. Safe to add.</div></div>';
+ $('#fadd').disabled=!!c.length;$('#fadd').style.opacity=c.length?.45:1;
+}
+V.fleet=()=>head('Fleet & maintenance','Aircraft status, hours and cycles, inspections, defects and airworthiness')+
+ `<div class="grid g4" style="margin-bottom:14px">${['Serviceable','AOG','In maintenance'].map(s=>`<div class="card kpi"><span>${s}</span><b>${FLEET.filter(a=>a.st===s).length}</b></div>`).join('')}<div class="card kpi"><span>Open defects</span><b>${FLEET.reduce((n,a)=>n+a.defects.filter(d=>d.s.startsWith('Open')).length,0)}</b></div></div>
+ <div class="card tw"><table><tr><th>Aircraft</th><th>Status</th><th class="n">Airframe h</th><th class="n">Cycles</th><th>Next inspection</th><th>Hours margin</th><th>AD compliance due</th></tr>`+
+ FLEET.map(a=>{const m=a.nextH-a.hrs,pc=Math.max(0,Math.min(100,100-m/50*100)),cls=m<10?'bad':m<30?'warn':'ok';return `<tr class="click" data-ac="${a.reg}"><td><b class="mono">${a.reg}</b><br><span class="muted">${TYPE[a.t]}</span></td><td><span class="pill ${a.st==='Serviceable'?'ok':a.st==='AOG'?'bad':'warn'}">${a.st}</span></td><td class="n">${a.hrs.toLocaleString()}</td><td class="n">${a.cyc.toLocaleString()}</td><td>${a.desc}<br>${pill(a.nextIn,30)}</td><td><div class="bar ${cls}"><i style="width:${pc}%"></i></div><span class="muted mono">${m.toFixed(1)} h left</span></td><td>${pill(a.ad,30)}</td></tr>`}).join('')+`</table></div>`;
+function acModal(reg){
+ const a=acOf(reg);
+ modal(`<h2>${reg} · ${TYPE[a.t]}</h2><h3 style="margin-top:14px">Defect log</h3>${a.defects.length?a.defects.map(d=>`<div class="alert"><span class="pill ${d.s.startsWith('Open')?'bad':'warn'}">${d.s.split(':')[0]}</span><div class="t">${esc(d.t)}<br><span class="muted">${fmt(d.d)} · ${d.s}</span></div></div>`).join(''):'<p class="muted">No open defects.</p>'}<div class="form" style="margin-top:12px"><div class="field"><label for="nd">Report a defect</label><input id="nd" placeholder="Describe the defect"></div><button class="btn pri" id="ndb">Log defect</button></div>`);
+ $('#ndb').onclick=()=>{const v=$('#nd').value.trim();if(!v)return;a.defects.unshift({d:'2026-10-14',t:v,s:'Open: awaiting review'});toast('Defect logged on '+reg);acModal(reg);render()};
+}
+</script>
+<script>
+/* ---------- Flight ops ---------- */
+const WX={KDAL:{m:'KDAL 141153Z 18008KT 10SM SCT025 BKN250 27/18 A2998 RMK AO2',c:'VFR'},KAUS:{m:'KAUS 141153Z 16006KT 5SM HZ FEW025 26/19 A3001',c:'MVFR'},KHOU:{m:'KHOU 141153Z VRB03KT 2SM +TSRA BKN012CB 26/24 A2995',c:'IFR'},KSAT:{m:'KSAT 141153Z 04012KT 4SM HZ NSC 30/10 A3004',c:'MVFR'},KOKC:{m:'KOKC 141153Z 25005KT 10SM FEW020 24/17 A3002',c:'VFR'}};
+const NOTAMS=[['KDAL','!DAL 10/045','RWY 13R/31L closed 0500-0900 local daily for resurfacing'],['KAUS','!AUS 10/112','ILS RWY 13L unserviceable, RNAV (GPS) available'],['KHOU','!HOU 10/071','Bird activity reported near RWY 13R threshold']];
+const WBX={B350:{bew:9100,arm:190,mtow:15000,lim:[185,197],name:'King Air 350'}};
+V.ops=()=>{
+ const t=tab.ops||'trip',fid=+(tab.fid||4),f=ROSTER.find(r=>r.id===fid),p=byId(f.p),a=acOf(f.ac),dur=((T(f.e)-T(f.s))).toFixed(1);
+ return head('Flight operations','Trip sheets, weather, NOTAMs and weight & balance')+tabs('ops',[['trip','Trip sheet'],['wx','Weather & NOTAM'],['wb','Weight & balance']],t)+
+ (t==='trip'?`<div class="card"><div class="field" style="max-width:380px;margin-bottom:12px"><label for="tf">Flight</label><select id="tf">${ROSTER.map(r=>`<option value="${r.id}" ${r.id===fid?'selected':''}>${r.s.slice(5,10)} ${r.s.slice(11)} · ${r.r} · ${esc(byId(r.p).n)}</option>`).join('')}</select></div>
+ <div class="grid g2"><dl class="kv"><dt>Route</dt><dd class="mono">${f.r}</dd><dt>Aircraft</dt><dd>${f.ac} · ${TYPE[a.t]}</dd><dt>Commander</dt><dd>${esc(p.n)}</dd><dt>Block time</dt><dd class="mono">${f.s.slice(11)} to ${f.e.slice(11)} (${dur} h)</dd><dt>Flight plan</dt><dd>IFR · FL250 · filed 90 min before ETD</dd><dt>Fuel plan</dt><dd class="mono">${Math.round(dur*1100+900)} lb (trip ${Math.round(dur*1100)} + reserve 900)</dd></dl>
+ <div><h3>Release checklist</h3>${['Crew legal (medical, checkride, rest)','Aircraft serviceable, no open grounding defects','Weather and NOTAMs reviewed','Weight & balance within limits','Flight plan filed'].map((x,i)=>`<label class="row" style="padding:4px 0"><input type="checkbox" ${i<2&&!rowConf(f).length?'checked':''}> ${x}</label>`).join('')}</div></div>
+ ${rowConf(f).length?`<div class="alert" style="margin-top:10px"><span class="pill bad">Hold</span><div class="t">${rowConf(f).map(esc).join('<br>')}</div></div>`:''}</div>`:'')+
+ (t==='wx'?`<div class="grid g2"><div class="card"><h3>METAR</h3>${Object.entries(WX).map(([k,w])=>`<div class="alert"><span class="pill ${w.c==='VFR'?'ok':w.c==='MVFR'?'warn':'bad'}">${w.c}</span><div class="t mono" style="font-size:12px">${w.m}</div></div>`).join('')}</div><div class="card"><h3>NOTAMs</h3>${NOTAMS.map(n=>`<div class="alert"><span class="mono">${n[0]}</span><div class="t"><b class="mono">${n[1]}</b><br>${n[2]}</div></div>`).join('')}</div></div><p class="muted">Sample data. A live METAR/TAF and NOTAM provider connects here.</p>`:'')+
+ (t==='wb'?wbView():'');
+};
+function wbView(){
+ const w=WBX.B350;
+ return `<div class="grid g2"><div class="card"><h3>${w.name} loading (illustrative figures)</h3><div class="form">${[['wp','Pilots',340],['wc','Passengers',640],['wf','Fuel (lb)',3800],['wg','Baggage (lb)',220]].map(([i,l,v])=>`<div class="field"><label for="${i}">${l}</label><input id="${i}" type="number" value="${v}"></div>`).join('')}</div></div><div class="card" id="wbout"></div></div>`;
+}
+function wbCalc(){
+ if(!$('#wbout'))return;const w=WBX.B350,g=i=>+$('#'+i).value||0;
+ const L=[[w.bew,w.arm],[g('wp'),129],[g('wc'),205],[g('wf'),198],[g('wg'),290]];
+ const wt=L.reduce((s,x)=>s+x[0],0),cg=L.reduce((s,x)=>s+x[0]*x[1],0)/wt,okW=wt<=w.mtow,okC=cg>=w.lim[0]&&cg<=w.lim[1];
+ $('#wbout').innerHTML=`<h3>Result</h3><dl class="kv"><dt>Gross weight</dt><dd class="mono">${Math.round(wt).toLocaleString()} lb of ${w.mtow.toLocaleString()} <span class="pill ${okW?'ok':'bad'}">${okW?'In limits':'Overweight'}</span></dd><dt>CG</dt><dd class="mono">${cg.toFixed(1)} in (limits ${w.lim[0]}-${w.lim[1]}) <span class="pill ${okC?'ok':'bad'}">${okC?'In limits':'Out of envelope'}</span></dd></dl><div class="bar ${okW?'ok':'bad'}" style="margin-top:12px"><i style="width:${Math.min(100,wt/w.mtow*100)}%"></i></div>`;
+}
+/* ---------- Training ---------- */
+V.training=()=>{const t=tab.tr||'courses';return head('Training','Courses, sim bookings, exam results and instructor sign-offs')+tabs('tr',[['courses','Courses'],['sim','Sim bookings'],['exam','Exams'],['sign','Sign-offs']],t)+
+ (t==='courses'?`<div class="grid g3">${COURSES.map(c=>`<div class="card"><h3>${c.n}</h3><p class="muted">Due ${fmt(c.due)} · ${pillTxt(c.due)}</p>${c.who.map((id,i)=>`<div style="margin:8px 0"><div class="row" style="justify-content:space-between"><span>${esc(byId(id).n)}</span><span class="mono muted">${c.done[i]}%</span></div><div class="bar ${c.done[i]===100?'ok':''}"><i style="width:${c.done[i]}%"></i></div></div>`).join('')}</div>`).join('')}</div>`:'')+
+ (t==='sim'?`<div class="card tw"><table><tr><th>Date</th><th>Slot</th><th>Device</th><th>Pilot</th><th>Instructor</th></tr>${SIMS.map(s=>`<tr><td>${fmt(s.d)}</td><td class="n">${s.t}</td><td>${s.sim}</td><td>${esc(byId(s.p).n)}</td><td>${s.inst}</td></tr>`).join('')}</table></div>`:'')+
+ (t==='exam'?`<div class="card tw"><table><tr><th>Pilot</th><th>Exam</th><th class="n">Score</th><th class="n">Pass mark</th><th>Result</th></tr>${EXAMS.map(x=>`<tr><td>${esc(byId(x.p).n)}</td><td>${x.e}<br><span class="muted">${fmt(x.d)}</span></td><td class="n">${x.sc}%</td><td class="n">${x.pass}%</td><td><span class="pill ${x.sc>=x.pass?'ok':'bad'}">${x.sc>=x.pass?'Pass':'Retake'}</span></td></tr>`).join('')}</table></div>`:'')+
+ (t==='sign'?`<div class="card"><ul class="tl">${SIGNOFFS.map(s=>`<li><b>${esc(byId(s.p).n)}</b> · ${s.item}<br><span class="muted">Signed off by ${s.by} · ${fmt(s.d)}</span></li>`).join('')}</ul></div>`:'');};
+const pillTxt=d=>{const n=days(d);return n+' days left'};
+/* ---------- Safety (SMS) ---------- */
+V.sms=()=>head('Safety management','Incident and hazard reports, investigations and audit trail. Voluntary reports can also go to NASA ASRS')+
+ `<div class="grid g2"><div class="card tw"><h3>Reports</h3><table><tr><th>ID</th><th>Report</th><th>Severity</th><th>State</th></tr>${REPORTS.map(r=>`<tr class="click" data-rep="${r.id}"><td class="mono">${r.id}</td><td>${esc(r.title)}<br><span class="muted">${r.type} · ${fmt(r.d)} · ${esc(byId(r.by).n)}</span></td><td><span class="pill ${r.sev==='High'?'bad':r.sev==='Medium'?'warn':'ok'}">${r.sev}</span></td><td>${r.state}</td></tr>`).join('')}</table></div>
+ <div class="card"><h3>File a report</h3><div class="form"><div class="field"><label for="rt">Type</label><select id="rt"><option>Incident</option><option>Hazard</option></select></div><div class="field"><label for="rs">Severity</label><select id="rs"><option>Low</option><option>Medium</option><option>High</option></select></div></div><div class="field" style="margin-top:10px"><label for="rd">What happened</label><textarea id="rd" rows="3" placeholder="Describe the event or hazard"></textarea></div><div class="row" style="margin-top:10px"><button class="btn pri" id="rsub">Submit report</button></div></div></div>`;
+function repModal(id){const r=REPORTS.find(x=>x.id===id);modal(`<h2>${r.id} · ${esc(r.title)}</h2><p class="muted">${r.type} · ${r.sev} severity · ${r.state}</p><h3 style="margin-top:12px">Audit trail</h3><ul class="tl">${r.log.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`)}
+/* ---------- Documents ---------- */
+V.docs=()=>head('Documents','Manuals, bulletins and e-signatures with read receipts')+
+ `<div class="card tw"><table><tr><th>Document</th><th>Type</th><th>Issued</th><th>Read & signed</th></tr>${MANUALS.map((m,i)=>{const n=Object.values(m.sign).filter(Boolean).length,tot=PILOTS.length;return `<tr class="click" data-doc="${i}"><td><b>${m.n}</b></td><td>${m.cat}</td><td>${fmt(m.d)}</td><td style="min-width:160px"><div class="bar ${n===tot?'ok':'warn'}"><i style="width:${n/tot*100}%"></i></div><span class="mono muted">${n}/${tot} pilots</span></td></tr>`}).join('')}</table></div>`;
+function docModal(i){const m=MANUALS[i];modal(`<h2>${m.n}</h2><p class="muted">${m.cat} · issued ${fmt(m.d)}</p><div class="tw"><table>${PILOTS.map(p=>`<tr><td>${esc(p.n)}</td><td>${m.sign[p.id]?`<span class="pill ok">Signed ${typeof m.sign[p.id]==='string'?m.sign[p.id]:''}</span>`:'<span class="pill warn">Unread</span>'}</td><td>${m.sign[p.id]?'':`<button class="btn sm" data-sign="${i}|${p.id}">E-sign as ${esc(p.n.split(' ')[0])}</button>`}</td></tr>`).join('')}</table></div>`)}
+/* ---------- Business ---------- */
+const MH={P01:62.4,P02:71.1,P03:48.0,P04:55.2,P05:66.8,P06:80.5,P07:58.3,P08:41.7};
+V.business=()=>{const t=tab.bz||'book';return head('Business','Charter and school bookings, quotes, invoicing and payroll by flight hours')+tabs('bz',[['book','Bookings & quotes'],['inv','Invoices'],['pay','Payroll (Oct to date)']],t)+
+ (t==='book'?`<div class="grid g2"><div class="card tw"><h3>Pipeline</h3><table><tr><th>Ref</th><th>Client</th><th>Aircraft</th><th>Status</th></tr>${BOOKINGS.map(b=>`<tr><td class="mono">${b.id}</td><td>${esc(b.c)}<br><span class="muted">${b.kind} · ${b.route}</span></td><td>${TYPE[b.ac]}</td><td><span class="pill ${b.s==='Confirmed'?'ok':b.s==='Draft'?'neutral':'warn'}">${b.s}</span></td></tr>`).join('')}</table></div>
+ <div class="card"><h3>Quote builder</h3><div class="form"><div class="field"><label for="qa">Aircraft</label><select id="qa">${Object.keys(RATES).map(k=>`<option value="${k}">${TYPE[k]}</option>`).join('')}</select></div><div class="field"><label for="qh">Flight hours</label><input id="qh" type="number" step="0.1" value="1.6"></div><div class="field"><label for="ql">Landings</label><input id="ql" type="number" value="1"></div></div><div id="qout" style="margin-top:12px"></div></div></div>`:'')+
+ (t==='inv'?`<div class="card tw"><table><tr><th>Invoice</th><th>Client</th><th class="n">Amount (incl. 7.5% excise tax)</th><th>Status</th></tr>${BOOKINGS.filter(b=>b.s==='Confirmed').map((b,i)=>{const a=b.hrs*RATES[b.ac]*1.075;return `<tr><td class="mono">INV-${4410+i}</td><td>${esc(b.c)}</td><td class="n">${money(a)}</td><td><span class="pill ${i?'warn':'ok'}">${i?'Awaiting payment':'Paid'}</span></td></tr>`}).join('')}</table></div>`:'')+
+ (t==='pay'?`<div class="card tw"><table><tr><th>Pilot</th><th class="n">Flight hours</th><th class="n">Rate / h</th><th class="n">Pay</th></tr>${PILOTS.map(p=>`<tr><td>${esc(p.n)}</td><td class="n">${MH[p.id].toFixed(1)}</td><td class="n">${money(p.rate)}</td><td class="n">${money(MH[p.id]*p.rate)}</td></tr>`).join('')}<tr><td><b>Total</b></td><td class="n"><b>${Object.values(MH).reduce((a,b)=>a+b,0).toFixed(1)}</b></td><td></td><td class="n"><b>${money(PILOTS.reduce((s,p)=>s+MH[p.id]*p.rate,0))}</b></td></tr></table></div>`:'');};
+function quoteCalc(){if(!$('#qout'))return;const a=$('#qa').value,h=+$('#qh').value||0,l=+$('#ql').value||0,fl=h*RATES[a],ld=l*450,seg=l*5.5,sub=fl+ld+seg,vat=fl*.075;
+ $('#qout').innerHTML=`<dl class="kv"><dt>Flight time</dt><dd class="mono">${money(fl)}</dd><dt>FBO and landing fees</dt><dd class="mono">${money(ld)}</dd><dt>Segment fee</dt><dd class="mono">${money(seg)}</dd><dt>Federal excise tax 7.5%</dt><dd class="mono">${money(vat)}</dd><dt><b>Total</b></dt><dd class="mono"><b>${money(sub+vat)}</b></dd></dl><div class="row" style="margin-top:10px"><button class="btn pri" id="qsend">Send quote</button></div>`;$('#qsend').onclick=()=>toast('Quote Q-2035 saved as sent (sample)')}
+</script>
+<script>
+function render(){
+ const m=$('#main');m.innerHTML='<div class="fade">'+V[view]()+'</div>';bindTabs({overview:'o',pilots:'p',compliance:'comp',roster:'ro',fleet:'f',ops:'ops',training:'tr',sms:'s',docs:'d',business:'bz'}[view]);
+ if(view==='roster')shiftHTML();
+ if(view==='roster'&&(tab.ro==='add')){['fp','fa','fd','fs','fe'].forEach(i=>$('#'+i).oninput=liveCheck);liveCheck();
+  $('#fadd').onclick=()=>{const g=i=>$('#'+i).value;ROSTER.push({id:Date.now(),p:g('fp'),ac:g('fa'),r:g('fr'),s:g('fd')+'T'+g('fs'),e:g('fd')+'T'+g('fe')});toast('Flight added to roster');tab.ro='week';render()}}
+ if(view==='ops'){const tf=$('#tf');if(tf)tf.onchange=()=>{tab.fid=tf.value;render()};if(tab.ops==='wb'){['wp','wc','wf','wg'].forEach(i=>$('#'+i).oninput=wbCalc);wbCalc()}}
+ if(view==='business'&&(!tab.bz||tab.bz==='book')){['qa','qh','ql'].forEach(i=>$('#'+i).oninput=quoteCalc);quoteCalc()}
+ if(view==='sms')$('#rsub').onclick=()=>{const d=$('#rd').value.trim();if(!d){toast('Describe the event first');return}const id='SR-0'+(148+REPORTS.length-3);REPORTS.unshift({id,type:$('#rt').value,sev:$('#rs').value,title:d.slice(0,70),by:'P01',d:'2026-10-14',state:'Open',log:['14 Oct '+new Date().toISOString().slice(11,16)+' Report filed']});toast(id+' filed');render()};
+ const ap=$('#addp');if(ap)ap.onclick=()=>toast('Add pilot form opens here (sample)');
+ const ra=$('#runalerts');if(ra)ra.onclick=()=>toast(allAlerts().length+' alerts queued to pilots and the chief pilot');
+}
+document.addEventListener('click',e=>{
+ const q=s=>e.target.closest(s);let x;
+ if(x=q('[data-notify]')){e.stopPropagation();toast('Reminder sent to '+byId(x.dataset.notify).n);return}
+ if(x=q('[data-pilot]'))return pilotModal(x.dataset.pilot);
+ if(x=q('[data-flight]'))return flightModal(+x.dataset.flight);
+ if(x=q('[data-ac]'))return acModal(x.dataset.ac);
+ if(x=q('[data-rep]'))return repModal(x.dataset.rep);
+ if(x=q('[data-doc]'))return docModal(+x.dataset.doc);
+ if(x=q('[data-sign]')){const[i,id]=x.dataset.sign.split('|');MANUALS[i].sign[id]='14 Oct';toast('Signed. Read receipt recorded.');docModal(+i);render();return}
+ if(x=q('[data-swap]')){const w=SWAPS.find(s=>s.id==x.dataset.swap),f=ROSTER.find(r=>r.id===w.flight),c=conflicts(w.to,f.ac,f.s,f.e,f.id);
+  if(c.length)return modal('<h2>Swap blocked</h2>'+c.map(z=>`<div class="alert"><span class="pill bad">Conflict</span><div class="t">${esc(z)}</div></div>`).join(''));
+  f.p=w.to;w.state='Approved';toast('Swap approved, roster updated');render()}
+});
+nav();render();
+</script>
+</html>
